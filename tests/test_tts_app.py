@@ -1,6 +1,6 @@
 import os
 import pytest
-from main import read_text_file, text_to_speech, input_directory, output_directory
+from ..main import read_text_file, text_to_speech, input_directory, output_directory
 
 @pytest.fixture(scope="module")
 def setup_directories():
