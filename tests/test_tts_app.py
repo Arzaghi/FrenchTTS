@@ -1,30 +1,50 @@
 import os
 import pytest
-from ..main import read_text_file, text_to_speech, input_directory, output_directory
+from ..main import read_text_file, text_to_speech, process_files
+
+input_directory = "input"
+output_directory = "output"
 
 @pytest.fixture(scope="module")
 def setup_directories():
-    if not os.path.exists(input_directory):
-        os.makedirs(input_directory)
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
+    # Create input and output directories
+    os.makedirs(input_directory, exist_ok=True)
+    os.makedirs(output_directory, exist_ok=True)
     yield
-    for file_name in ["test_input.txt", "test_output.mp3"]:
-        file_path = os.path.join(input_directory if file_name.endswith(".txt") else output_directory, file_name)
-        if os.path.exists(file_path):
-            os.remove(file_path)
+    # Clean up: remove created directories and files
+    for file in os.listdir(input_directory):
+        os.remove(os.path.join(input_directory, file))
+    for file in os.listdir(output_directory):
+        os.remove(os.path.join(output_directory, file))
+    os.rmdir(input_directory)
+    os.rmdir(output_directory)
 
 def test_read_text_file(setup_directories):
-    input_file = os.path.join(input_directory, 'test_input.txt')
-    with open(input_file, 'w', encoding='utf-8') as file:
-        file.write('Bonjour.\nComment ça va?\nBienvenue!\n')
-    
-    expected = ['Bonjour.', 'Comment ça va?', 'Bienvenue!']
-    result = read_text_file(input_file)
-    assert result == expected
+    sample_text = "Hello\nWorld\n"
+    sample_file_path = os.path.join(input_directory, "sample.txt")
+    with open(sample_file_path, "w", encoding="utf-8") as file:
+        file.write(sample_text)
+
+    lines = read_text_file(sample_file_path)
+    assert lines == ["Hello", "World"]
 
 def test_text_to_speech(setup_directories):
-    text_lines = ['Bonjour.', 'Comment ça va?', 'Bienvenue!']
-    output_file = os.path.join(output_directory, 'test_output.mp3')
-    text_to_speech(text_lines, output_file)
+    text_lines = ["Hello", "World"]
+    output_file = os.path.join(output_directory, "output.mp3")
+
+    from tqdm import tqdm
+    with tqdm(total=len(text_lines), desc="Testing text_to_speech") as progress_bar:
+        text_to_speech(text_lines, output_file, progress_bar)
+
+    assert os.path.exists(output_file)
+
+def test_process_files(setup_directories):
+    sample_text = "Hello\nWorld\n"
+    sample_file_path = os.path.join(input_directory, "sample.txt")
+    with open(sample_file_path, "w", encoding="utf-8") as file:
+        file.write(sample_text)
+
+    process_files()
+
+    output_file = os.path.join(output_directory, "sample.mp3")
     assert os.path.exists(output_file)
