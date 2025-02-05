@@ -14,20 +14,27 @@ def read_text_file(file_path):
 
 def text_to_speech(text_lines, output_file, progress_bar):
     combined = AudioSegment.empty()
+    temp_file = "temp.mp3"
     for line in text_lines:
-        tts = gTTS(text=line, lang='fr')
-        with io.BytesIO() as temp_audio:
-            tts.write_to_fp(temp_audio)
-            temp_audio.seek(0)
-            sound = AudioSegment.from_file(temp_audio, format="mp3")
-            combined += sound
-            combined += AudioSegment.silent(duration=3000)  # Add 3-second pause
+        tts = gTTS(text=line, lang='fr')        
+        tts.save(temp_file)
+        sound = AudioSegment.from_mp3(temp_file)
+        combined += sound
+        combined += AudioSegment.silent(duration=3000)  # Add 3-second pause
         progress_bar.update(1)
 
     combined.export(output_file, format="mp3")
 
 def process_files():
+    if not os.path.exists(input_directory):
+        print(f"Error: Input directory '{input_directory}' does not exist.")
+        return
+
     text_files = [f for f in os.listdir(input_directory) if f.endswith(".txt")]
+    if not text_files:
+        print(f"Error: No new text files found in the input directory '{input_directory}'.")
+        return
+
     total_lines = sum(len(read_text_file(os.path.join(input_directory, f))) for f in text_files)
 
     with tqdm(total=total_lines, desc="Processing all lines") as progress_bar:
