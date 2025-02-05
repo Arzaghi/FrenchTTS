@@ -16,11 +16,12 @@ def text_to_speech(text_lines, output_file, progress_bar):
     combined = AudioSegment.empty()
     temp_file = "temp.mp3"
     for line in text_lines:
-        tts = gTTS(text=line, lang='fr')        
-        tts.save(temp_file)
-        sound = AudioSegment.from_mp3(temp_file)
-        combined += sound
-        combined += AudioSegment.silent(duration=3000)  # Add 3-second pause
+        if line:
+            tts = gTTS(text=line, lang='fr')        
+            tts.save(temp_file)
+            sound = AudioSegment.from_mp3(temp_file)
+            combined += sound
+            combined += AudioSegment.silent(duration=3000)  # Add 3-second pause
         progress_bar.update(1)
 
     combined.export(output_file, format="mp3")

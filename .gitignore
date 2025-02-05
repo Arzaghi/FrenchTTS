@@ -2,3 +2,4 @@ output/*
 input/*
 __pycache__/*
 tests/__pycache__/*
+temp.mp3
