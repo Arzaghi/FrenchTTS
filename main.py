@@ -1,11 +1,11 @@
 import os
 import io
+import argparse
 from gtts import gTTS
 from pydub import AudioSegment
 from tqdm import tqdm
 
-input_directory = "input"
-output_directory = "output"
+pause_time = 250
 
 def read_text_file(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
@@ -21,32 +21,32 @@ def text_to_speech(text_lines, output_file, progress_bar):
             tts.save(temp_file)
             sound = AudioSegment.from_mp3(temp_file)
             combined += sound
-            combined += AudioSegment.silent(duration=3000)  # Add 3-second pause
+            combined += AudioSegment.silent(duration=pause_time)
         progress_bar.update(1)
 
     combined.export(output_file, format="mp3")
 
-def process_files():
-    if not os.path.exists(input_directory):
-        print(f"Error: Input directory '{input_directory}' does not exist.")
+def process_file(input_file):
+    if not os.path.exists(input_file):
+        print(f"Error: Input file '{input_file}' does not exist.")
         return
 
-    text_files = [f for f in os.listdir(input_directory) if f.endswith(".txt")]
-    if not text_files:
-        print(f"Error: No new text files found in the input directory '{input_directory}'.")
+    if not input_file.endswith(".txt"):
+        print(f"Error: Input file '{input_file}' is not a text file.")
         return
 
-    total_lines = sum(len(read_text_file(os.path.join(input_directory, f))) for f in text_files)
+    output_file = input_file.replace(".txt", ".mp3")
 
-    with tqdm(total=total_lines, desc="Processing all lines") as progress_bar:
-        for file_name in text_files:
-            input_file = os.path.join(input_directory, file_name)
-            output_file = os.path.join(output_directory, file_name.replace(".txt", ".mp3"))
+    text_lines = read_text_file(input_file)
+    total_lines = len(text_lines)
 
-            text_lines = read_text_file(input_file)
-            text_to_speech(text_lines, output_file, progress_bar)
+    with tqdm(total=total_lines, desc=f"Processing {input_file}") as progress_bar:
+        text_to_speech(text_lines, output_file, progress_bar)
 
 if __name__ == "__main__":
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
-    process_files()
+    parser = argparse.ArgumentParser(description="Convert text files to speech.")
+    parser.add_argument("input_files", type=str, nargs='+', help="Paths to the input text files.")
+    args = parser.parse_args()
+
+    for input_file in args.input_files:
+        process_file(input_file)

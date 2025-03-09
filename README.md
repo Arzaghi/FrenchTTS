@@ -44,11 +44,10 @@ sudo apt-get install ffmpeg
 
 ## Usage
 
-1. Place your text files in the `input` directory.
-2. Run the program:
+1. Run the program:
 
    ```bash
-   python main.py
+   python main.py file1.txt file2.txt
    ```
 
 The program will read all text files in the `input_directory` and generate MP3 files in the `output_directory`, adding a 3-second pause after each line.
@@ -73,17 +72,12 @@ We use `pytest` for testing.
 
 ```plaintext
 .
-├── input_directory
-│   └── example.txt
-├── output_directory
-├── your_script.py
+├── main.py
 ├── requirements.txt
 └── test_tts_app.py
 ```
 
-- `input_directory/`: Place your input text files here.
-- `output_directory/`: Generated MP3 files will be saved here.
-- `your_script.py`: Main application script.
+- `main.py`: Main application script.
 - `requirements.txt`: List of required Python libraries.
 - `test_tts_app.py`: Test script for the application.
 
