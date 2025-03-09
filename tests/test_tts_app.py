@@ -1,6 +1,6 @@
 import os
 import pytest
-from ..main import read_text_file, text_to_speech, process_files
+from ..main import read_text_file, text_to_speech, process_file
 
 input_directory = "input"
 output_directory = "output"
@@ -38,13 +38,13 @@ def test_text_to_speech(setup_directories):
 
     assert os.path.exists(output_file)
 
-def test_process_files(setup_directories):
+def test_process_file(setup_directories):
     sample_text = "Hello\nWorld\n"
     sample_file_path = os.path.join(input_directory, "sample.txt")
+    output_file_path = os.path.join(input_directory, "sample.mp3")
     with open(sample_file_path, "w", encoding="utf-8") as file:
         file.write(sample_text)
 
-    process_files()
+    process_file(sample_file_path)
 
-    output_file = os.path.join(output_directory, "sample.mp3")
-    assert os.path.exists(output_file)
+    assert os.path.exists(output_file_path)
